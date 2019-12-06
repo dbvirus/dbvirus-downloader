@@ -1,18 +1,23 @@
 """
 Provides unit tests for the Downloader class
 """
-import dbvirus_downloader
-from dbvirus_downloader import Downloader, DownloadStrategy
+from pytest import raises
+
+import dbvirus_downloader as dbdown
+from dbvirus_downloader import exceptions
 
 
-def test_downloader_finds_fasterq_dump(mocker):
+def test_downloader_fails_without_fasterq_dump(mocker):
     """
-    Tests that if the fasterq-dump binary is available, it is used
-    as a strategy
+    Tests that an exception is raised if fasterq-dump binary is not available
     """
+
+    # Mocks Shutil's which in orde to make "fasterq-dump" appear available
     mocker.patch("dbvirus_downloader.which")
-    dbvirus_downloader.which.return_value = True
+    dbdown.which.return_value = False
 
-    downloader = Downloader()
+    with raises(exceptions.FasterqDumpNotFound) as e:
 
-    assert downloader.strategy == DownloadStrategy.FASTERQDUMP
+        dbdown.Downloader()
+
+    assert "install it using conda" in str(e.value)

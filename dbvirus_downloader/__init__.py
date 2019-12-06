@@ -2,15 +2,13 @@
 This module provides classes and helpers to download SRA Data
 """
 
-from enum import Enum
 from shutil import which
 
 from dbvirus_cacher.documents import EntrezItem
 
-__version__ = "0.1.0"
+from .exceptions import FasterqDumpNotFound
 
-# pylint: disable=invalid-name
-DownloadStrategy = Enum("DownloadStrategy", ["FASTERQDUMP", "MANUAL"])
+__version__ = "0.1.0"
 
 
 class Downloader:
@@ -19,11 +17,9 @@ class Downloader:
     perform faster SRA data dumping
     """
 
-    strategy = DownloadStrategy.MANUAL
-
     def __init__(self):
-        if self.is_fasterqdump_available():
-            self.strategy = DownloadStrategy.FASTERQDUMP
+        if not self.is_fasterqdump_available():
+            raise FasterqDumpNotFound()
 
     @staticmethod
     def is_fasterqdump_available():
@@ -41,4 +37,4 @@ class Downloader:
         return EntrezItem.objects.all()
 
 
-__all__ = ["Downloader", "DownloadStrategy"]
+__all__ = ["Downloader"]
